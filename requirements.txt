@@ -1,0 +1,24 @@
+# Shared dependencies across labs. Pin versions per course if a lab needs it.
+# Install:  python -m venv .venv  &&  .venv\Scripts\activate  &&  pip install -r requirements.txt
+
+jupyter
+python-dotenv
+
+# --- RAG / LLM orchestration ---
+langchain
+langchain-community
+langchain-core
+
+# --- Embeddings & vector stores (add as courses require) ---
+# sentence-transformers
+# chromadb
+# faiss-cpu
+
+# --- Agent frameworks (courses 6-9) ---
+# langgraph
+# crewai
+# pyautogen
+
+# --- Utilities ---
+# pandas
+# tiktoken
