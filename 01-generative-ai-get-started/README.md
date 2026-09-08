@@ -8,14 +8,23 @@
 
 - Understand what generative AI is and where LLMs fit into an application stack
 - Work with foundation models through APIs and SDKs (prompts, parameters, responses)
-- Apply prompt engineering patterns for reliable, structured output
+- Apply prompt engineering patterns — zero-/one-/few-shot, chain-of-thought, self-consistency — for reliable output
+- Structure prompts with LangChain `PromptTemplate` and reuse them across use cases
 - Build a first end-to-end generative AI application
 
 ## Labs
 
-_No labs documented yet. Use the structure below as each lab is completed._
+### Lab 1 — Master Prompt Engineering and LangChain PromptTemplates
 
-### Lab 1 — [Lab title]
+- **Task:** Explore prompt engineering end to end against an IBM Granite model on watsonx.ai: start from basic prompts, work through advanced in-context learning techniques, then use LangChain prompt templates to apply prompting to real use cases (summarization, QA, classification, code generation, role play). Includes 5 exercises.
+- **Approach:**
+  - `ibm/granite-4-h-small` via `langchain-ibm`'s `WatsonxLLM`, wrapped in a reusable `llm_model(prompt, params)` helper with `default_params` (`max_new_tokens`, `min_new_tokens`, `temperature`, `top_p`, `top_k`).
+  - Compared prompt styles on the same tasks: **zero-shot** vs **one-shot** vs **few-shot**, then **chain-of-thought** for multi-step reasoning and **self-consistency** (sampling several reasoning paths and taking the majority answer).
+  - Moved hard-coded prompts into `PromptTemplate` objects with input variables so one template serves many inputs; chained template → LLM.
+- **Code:** [`labs/In-Context Learning and Prompt Templates for Advanced AI.ipynb`](./labs/In-Context%20Learning%20and%20Prompt%20Templates%20for%20Advanced%20AI.ipynb)
+- **Key learning:** Prompt structure is a bigger lever on output quality than parameter tuning. Few-shot examples fix format and tone; chain-of-thought plus self-consistency noticeably improves reasoning tasks; `PromptTemplate` turns one-off prompts into reusable, testable components.
+
+### Lab 2 — [Lab title]
 
 - **Task:** [...]
 - **Approach:** [...]
@@ -24,10 +33,15 @@ _No labs documented yet. Use the structure below as each lab is completed._
 
 ## Key takeaways
 
-- [To be filled in as the course progresses]
+- Decoding parameters: lower `temperature` / `top_p` / `top_k` for deterministic, factual tasks; raise them for variety (e.g. self-consistency, brainstorming).
+- In-context learning progression: zero-shot → one-shot → few-shot trades prompt length for reliability; add examples only until the format stabilizes.
+- Chain-of-thought makes the model show intermediate steps; self-consistency aggregates multiple CoT samples to reduce single-path errors.
+- LangChain `PromptTemplate` separates prompt wording from the data filled into it — the basis for chains and, later, RAG and agents.
+- The same small set of prompting patterns covers summarization, QA, classification, code generation and role play.
 
 ## Tools & libraries
 
-- Python
-- Jupyter Notebook
-- [LLM SDK / API used in the course]
+- Python, Jupyter Notebook
+- IBM watsonx.ai — `ibm-watsonx-ai`, model `ibm/granite-4-h-small`
+- LangChain — `langchain`, `langchain-core`
+- `langchain-ibm` — `WatsonxLLM` integration
