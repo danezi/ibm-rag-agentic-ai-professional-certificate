@@ -50,6 +50,18 @@ _Placeholder — to be filled in after course 10._
 
 This section will summarize the capstone project: the problem, the RAG + agentic architecture, the tech stack, key results, and a link to the full write-up and code in [`10-rag-agentic-ai-capstone-project/`](./10-rag-agentic-ai-capstone-project/).
 
+## Running the labs
+
+Most labs call foundation models through **IBM watsonx.ai**. Inside the Coursera/Skills Network lab environment, `credentials` and `project_id` are pre-filled, so the notebooks run without any keys of your own. To run the same code **locally**, create your own watsonx.ai API key and project ID and set them via `.env` (see [`.env.example`](./.env.example)) — the walkthrough for generating those keys is here:
+[IBM watsonx.ai: The Interface and API — Sina Nazeri (Medium)](https://medium.com/the-power-of-ai/ibm-watsonx-ai-the-interface-and-api-e8e1c7227358).
+
+Key parameters used when instantiating a model:
+
+- **`model_id`** — which foundation model to use. Options are listed in the [watsonx.ai Foundation Models docs](https://ibm.github.io/watsonx-ai-python-sdk/foundation_models.html); the labs default to `ibm/granite-4-h-small`.
+- **`parameters`** — the model's generation config (e.g. decoding method, max/min new tokens, temperature). Run `GenParams().get_example_values()` to see common options; if none are passed, `default_params` are used.
+- **`credentials`** and **`project_id`** — required to run any watsonx.ai model. Pre-set in the lab environment; supply your own for local runs.
+- **`WatsonxLLM()`** — LangChain wrapper that creates the usable LLM instance.
+
 ## How this repository is used
 
 - Each `NN-course-name/` folder has its own `README.md` following a shared template ([`docs/course-readme-template.md`](./docs/course-readme-template.md)): course link, learning goals, a per-lab breakdown (task, approach, code link, key learning), key takeaways, and the tools used.
