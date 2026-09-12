@@ -2,7 +2,7 @@
 
 **Coursera course:** [https://www.coursera.org/learn/[course-slug]](https://www.coursera.org/learn/[course-slug])
 **Part of:** [IBM RAG and Agentic AI Specialization](../README.md)
-**Status:** 🟡 In progress (~68%)
+**Status:** 🟢 Done
 
 ## Learning goals
 
@@ -39,6 +39,19 @@
 - **Code:** [`labs/Build Smarter AI Apps Empower LLMs with LangChain.ipynb`](./labs/Build%20Smarter%20AI%20Apps%20Empower%20LLMs%20with%20LangChain.ipynb)
 - **Key learning:** LangChain's payoff is composition — the same few primitives (prompt, LLM, parser, retriever, memory, tool) snap together into RAG pipelines, chatbots, and agents, and models or prompts can be swapped without touching the wiring. LCEL (`|`) is now the default way to build chains; `SequentialChain` still works but is more rigid. RAG is a fixed pipeline (load → split → embed → store → retrieve → stuff into prompt); agents add a reason–act–observe (ReAct) loop on top so the LLM decides which tool to call.
 
+### Final Project — Build Your First GenAI Application the Right Way
+
+- **Task:** Build an AI-powered Flask web app (a support-chat "AI Assistant") that sends a user message to a watsonx.ai foundation model and gets back a structured response — not just free text — for a customer-support use case. Includes an exercise extending the structured output with a `category` and `action` field.
+- **Approach:**
+  - **Backend:** `Flask` app (`app.py`) with a single `/generate` endpoint that takes `{message, model}`, routes to a model-specific response function, and times the round trip.
+  - **Multi-model:** `ChatWatsonx` (`langchain-ibm`) wraps three models — `ibm/granite-4-h-small`, `meta-llama/llama-4-maverick-17b-128e-instruct-fp8`, `mistralai/mistral-small-3-1-24b-instruct-2503` — so the same UI can compare providers side by side.
+  - **Structured output:** a Pydantic `AIResponse` model (`summary`, `sentiment`, `response`, `category`, `action`) is enforced via LangChain's `JsonOutputParser`, so every model reply comes back as validated JSON instead of prose.
+  - **Per-model prompt formatting:** each model gets its own `PromptTemplate` using that model family's native special tokens (Llama's `<|begin_of_text|>`/`<|start_header_id|>`, a plain `System:`/`Human:` layout for Granite, Mistral's `[INST]` tags) — same `system_prompt`/`user_prompt`/`format_prompt` inputs, different wire format.
+  - **Frontend:** a minimal chat UI (`templates/index.html`) with a model selector, talking to the Flask backend over `fetch`.
+  - **Exercise — enhancing the JSON structure:** extended `AIResponse` with `category` (inquiry type) and `action` (recommended next step for the support rep), then adjusted the system prompt so the model reliably fills every field.
+- **Code:** [`labs/genai_flask_app/`](./labs/genai_flask_app/)
+- **Key learning:** Wrapping a model in a chat interface is the easy part — the real engineering is (1) forcing structured, parseable output with a Pydantic schema + `JsonOutputParser` instead of trusting free text, and (2) prompt formatting is model-specific: the same instructions need a different template (special tokens, message layout) per model family to get consistent results. That combination is what turns a single API call into an app other code can rely on.
+
 ## Key takeaways
 
 - Decoding parameters: lower `temperature` / `top_p` / `top_k` for deterministic, factual tasks; raise them for variety (e.g. self-consistency, brainstorming).
@@ -51,11 +64,13 @@
 - Output parsers (JSON/Pydantic, CSV, `StrOutputParser`) turn free-text completions into structured Python objects.
 - Conversational memory (`ChatMessageHistory`, `ConversationBufferMemory`, `ConversationSummaryMemory`) re-injects prior turns so a chat model keeps context.
 - Agents use an LLM as a reasoning engine over tools: `create_react_agent` + `AgentExecutor` run a thought → action → observation (ReAct) loop.
+- A production-shaped GenAI app needs two things prompting alone doesn't give you: a validated output schema (Pydantic + `JsonOutputParser`) so downstream code gets JSON, not prose, and per-model prompt templates, since each model family expects its own special-token / message format.
 
 ## Tools & libraries
 
-- Python, Jupyter Notebook
-- IBM watsonx.ai — `ibm-watsonx-ai`, `ibm-watson-machine-learning`; models `ibm/granite-4-h-small`, `meta-llama/llama-4-maverick-17b-128e-instruct-fp8`; embeddings `ibm/granite-embedding-278m-multilingual`
+- Python, Jupyter Notebook, Flask
+- IBM watsonx.ai — `ibm-watsonx-ai`, `ibm-watson-machine-learning`; models `ibm/granite-4-h-small`, `meta-llama/llama-4-maverick-17b-128e-instruct-fp8`, `mistralai/mistral-small-3-1-24b-instruct-2503`; embeddings `ibm/granite-embedding-278m-multilingual`
 - LangChain — `langchain`, `langchain-core`, `langchain-community` (document loaders, `Chroma`), `langchain-experimental` (`PythonREPL`), `langchainhub`
-- `langchain-ibm` — `WatsonxLLM` / `WatsonxEmbeddings` integrations (Lab 2 also uses `ibm-watson-machine-learning`'s older `WatsonxLLM` wrapper)
+- `langchain-ibm` — `WatsonxLLM` / `ChatWatsonx` / `WatsonxEmbeddings` integrations (Lab 2 also uses `ibm-watson-machine-learning`'s older `WatsonxLLM` wrapper)
 - Chroma vector database (`chromadb`), `pypdf` for PDF loading
+- Pydantic (`BaseModel`, `Field`) for structured LLM output schemas

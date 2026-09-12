@@ -63,3 +63,9 @@ Thumbs.db
 .idea/
 .vscode/
 *.swp
+
+# --- IBM/Coursera course materials (property of IBM/Coursera, not redistributed) ---
+# Lab/project instruction PDFs and the raw project-starter zips downloaded from
+# Skills Network. Only my own implementations (unpacked source, notebooks) are committed.
+Projekt_Build_Your_First_GenAI_Application_The_Right_Way.pdf
+*.zip
