@@ -1,6 +1,27 @@
 # GenAI Flask App (IBM Skills Network Lab)
 
 Diese Dateien wurden anhand der Lab-Anleitung "Build Your First GenAI Application The Right Way" erstellt.
+Dies ist das **Abschlussprojekt von Kurs 1** ([Develop Generative AI Applications: Get Started](../../README.md)).
+
+## Aufgabenstellung
+
+Volle Original-Anleitung von IBM Skills Network: [`Projekt_Build_Your_First_GenAI_Application_The_Right_Way.pdf`](./Projekt_Build_Your_First_GenAI_Application_The_Right_Way.pdf).
+
+Kurzfassung in eigenen Worten: Baue eine KI-gestützte Flask-Webanwendung ("AI Assistant"), die
+Nutzeranfragen an ein Foundation Model von watsonx.ai schickt und **strukturierte, direkt
+weiterverwertbare JSON-Antworten** zurückgibt statt reinen Freitext — am Beispiel eines
+Kundensupport-Chatbots. Lernziele laut Anleitung:
+
+- Eine Flask-Webanwendung mit KI-Anbindung entwickeln
+- Die `ibm-watsonx-ai`-Bibliothek nutzen, um Foundation Models anzusprechen
+- LangChains `JsonOutputParser` einsetzen, um strukturierte AI-Outputs zu erzwingen
+- Prompt-Engineering-Techniken anwenden, um verlässliche, actionable JSON-Antworten zu erzeugen
+- Mehrere Sprachmodelle (Llama, Granite, Mixtral/Mistral) vergleichen und bewerten
+- Die Anwendung mit modularem, wiederverwendbarem AI-Integrationscode erweitern
+
+Das Ergebnis (dieser Ordner): ein `/generate`-Endpunkt, der je nach gewähltem Modell eine
+Pydantic-validierte `AIResponse` (siehe `model.py`) liefert — inklusive der eigenständigen Übung,
+die Struktur um `category`/`action` zu erweitern (siehe Abschnitt unten).
 
 ## Screenshot
 

@@ -77,4 +77,4 @@ Key parameters used when instantiating a model:
 
 ## License
 
-Released under the MIT License — see [`LICENSE`](./LICENSE). Course materials and problem statements are the property of IBM and Coursera; this repository contains only my own implementations and notes.
+Released under the MIT License — see [`LICENSE`](./LICENSE) — for my own code, notebooks, and documentation. Some course/project instruction PDFs from IBM Skills Network are included alongside the relevant lab for reference and remain the property of IBM and Coursera; the MIT License does not extend to that content.
