@@ -2,6 +2,14 @@
 
 Diese Dateien wurden anhand der Lab-Anleitung "Build Your First GenAI Application The Right Way" erstellt.
 
+## Screenshot
+
+![AI Assistant chat UI: model selector (llama/granite), user asks for the capital of Cameroon, both models answer "Yaoundé" with response time shown](./screenshot.png)
+
+Die App läuft lokal (Flask-Dev-Server, Port 5000): Modell im Dropdown wählen, Frage stellen,
+strukturierte Antwort (`response`-Feld aus `AIResponse`) erscheint als Chat-Bubble inklusive
+Antwortzeit. Hier verglichen: `llama` vs. `granite` auf dieselbe Frage.
+
 ## Setup in der Cloud IDE
 
 ```bash

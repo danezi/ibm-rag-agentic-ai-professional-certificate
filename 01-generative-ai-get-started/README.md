@@ -49,7 +49,7 @@
   - **Per-model prompt formatting:** each model gets its own `PromptTemplate` using that model family's native special tokens (Llama's `<|begin_of_text|>`/`<|start_header_id|>`, a plain `System:`/`Human:` layout for Granite, Mistral's `[INST]` tags) — same `system_prompt`/`user_prompt`/`format_prompt` inputs, different wire format.
   - **Frontend:** a minimal chat UI (`templates/index.html`) with a model selector, talking to the Flask backend over `fetch`.
   - **Exercise — enhancing the JSON structure:** extended `AIResponse` with `category` (inquiry type) and `action` (recommended next step for the support rep), then adjusted the system prompt so the model reliably fills every field.
-- **Code:** [`labs/genai_flask_app/`](./labs/genai_flask_app/)
+- **Code:** [`labs/genai_flask_app/`](./labs/genai_flask_app/) — [screenshot](./labs/genai_flask_app/screenshot.png)
 - **Key learning:** Wrapping a model in a chat interface is the easy part — the real engineering is (1) forcing structured, parseable output with a Pydantic schema + `JsonOutputParser` instead of trusting free text, and (2) prompt formatting is model-specific: the same instructions need a different template (special tokens, message layout) per model family to get consistent results. That combination is what turns a single API call into an app other code can rely on.
 
 ## Key takeaways
