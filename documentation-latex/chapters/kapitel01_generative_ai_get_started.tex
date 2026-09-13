@@ -1,0 +1,326 @@
+\chapter{Kurs 1 --- Generative-KI-Anwendungen entwickeln: Erste Schritte}
+
+\section{Überblick und Lernziele}
+
+Dieser erste Kurs der Spezialisierung legt das Fundament für alles, was danach kommt:
+Retrieval-Augmented Generation (RAG), Vektordatenbanken und agentenbasierte Systeme bauen
+alle auf denselben Grundbausteinen auf, die hier eingeführt werden. Der Kurs beantwortet
+im Kern drei Fragen: Wie spricht man ein Foundation Model überhaupt sinnvoll an (Prompt
+Engineering)? Wie strukturiert und automatisiert man diese Ansprache, statt jedes Mal von
+Hand zu formulieren (LangChain-Bausteine wie \texttt{PromptTemplate}, Chains, Parser)? Und
+wie baut man daraus eine erste, echte Anwendung, die mehr kann als nur Text zurückgeben
+(eine Flask-Webanwendung mit strukturierter, verlässlicher Ausgabe)?
+
+Am Ende des Kurses soll man:
+\begin{itemize}
+    \item verstehen, wo ein LLM in einer Anwendungsarchitektur sitzt und wie man es über
+          eine API/ein SDK anspricht (Prompt, Parameter, Antwort);
+    \item mehrere Prompt-Engineering-Techniken (Zero-/One-/Few-Shot, Chain-of-Thought,
+          Self-Consistency) kennen und wissen, wann welche sinnvoll ist;
+    \item mit LangChain Prompts, Parser, Dokumente, Vektorspeicher, Retriever, Gedächtnis,
+          Chains und Agenten zu einer funktionierenden Pipeline zusammensetzen können;
+    \item eine erste eigenständige generative KI-Anwendung (Flask-Webapp) bauen können, die
+          strukturierte statt roher Textantworten liefert.
+\end{itemize}
+
+Alle praktischen Teile des Kurses wurden gegen IBM-watsonx.ai-Modelle umgesetzt
+(u.\,a. \texttt{\seqsplit{ibm/granite-4-h-small}}, \texttt{\seqsplit{meta-llama/llama-4-maverick-17b-128e-instruct-fp8}},
+\texttt{\seqsplit{mistralai/mistral-small-3-1-24b-instruct-2503}}), angesprochen
+über die Bibliotheken \texttt{ibm-watsonx-ai} und \texttt{langchain-ibm}.
+
+\section{Kernkonzepte}
+
+\subsection{Foundation Models und Interaktion über watsonx.ai}
+
+Ein Foundation Model ist die Kernkomponente jeder generativen KI-Anwendung: Es nimmt
+Klartext als Eingabe und erzeugt Klartext als Ausgabe. Alles, was eine Anwendung
+\enquote{intelligent} macht, entsteht dadurch, wie man dieses Modell einbettet und ansteuert ---
+nicht durch das Modell allein. In der Praxis bedeutet das: Man instanziiert ein Modell
+über \texttt{ModelInference} (aus \texttt{ibm-watsonx-ai}) mit drei Angaben --- einer
+\texttt{model\_id} (welches Modell), \texttt{parameters} (wie das Modell generiert) und
+\texttt{credentials}/\texttt{project\_id} (Zugang) --- und ruft es dann mit
+\texttt{model.generate(prompt)} auf. Die wichtigsten Generierungsparameter sind
+\texttt{MAX\_NEW\_TOKENS}/\texttt{MIN\_NEW\_TOKENS} (Länge der Antwort) und
+\texttt{TEMPERATURE}/\texttt{TOP\_P}/\texttt{TOP\_K} (Zufälligkeit bzw. Kreativität der
+Antwort). Eine niedrige Temperatur (z.\,B. 0{,}1--0{,}2) liefert deterministische,
+konsistente Antworten und eignet sich für faktenbasierte oder anweisungsbefolgende
+Aufgaben; eine hohe Temperatur (z.\,B. 0{,}8) liefert vielfältigere, kreativere Antworten,
+büßt dafür an Konsistenz zwischen mehreren Durchläufen ein.
+
+Um ein watsonx.ai-Modell in LangChain nutzbar zu machen (Chains, Prompt-Templates, etc.),
+wird es mit \texttt{WatsonxLLM} umschlossen (\texttt{WatsonxLLM(model=model)}). Danach
+verhält sich das Modell wie jedes andere LangChain-LLM und kann in Chains eingebunden
+werden.
+
+\subsection{Chat-Modelle und Nachrichtentypen}
+
+Ein Chat-Modell unterscheidet sich von einem einfachen Text-Modell dadurch, dass es
+Rollen kennt: eine Konversation besteht aus einer Liste von Nachrichten, die jeweils eine
+Rolle und einen Inhalt haben. Die drei wichtigsten Typen sind \texttt{SystemMessage}
+(setzt das Verhalten/die Persona des Modells, meist die erste Nachricht),
+\texttt{HumanMessage} (die Eingabe eines Nutzers) und \texttt{AIMessage} (eine Antwort
+des Modells). Reicht man dem Modell eine Liste solcher Nachrichten, kann es auf den
+gesamten bisherigen Gesprächsverlauf reagieren --- das ist die Grundlage jeder
+Chat-Anwendung mit Kontext über mehrere Runden.
+
+\subsection{Prompting-Strategien: Zero-, One- und Few-Shot}
+
+Diese drei Begriffe beschreiben, wie viele Beispiele man dem Modell im Prompt mitgibt,
+bevor man die eigentliche Frage stellt:
+\begin{itemize}
+    \item \textbf{Zero-Shot}: Es wird kein Beispiel mitgegeben, nur die Aufgabe selbst
+          (\enquote{Fasse folgenden Text zusammen: ...}). Funktioniert für einfache, allgemein
+          bekannte Aufgaben gut, ist aber anfällig für ein unerwartetes Antwortformat.
+    \item \textbf{One-Shot}: Ein einziges Beispiel wird vorangestellt, um Format und Ton
+          der gewünschten Antwort zu demonstrieren.
+    \item \textbf{Few-Shot}: Mehrere Beispiele werden vorangestellt. Das stabilisiert das
+          Antwortformat deutlich, kostet aber Prompt-Länge (und damit Tokens/Kosten).
+\end{itemize}
+Die Praxisregel lautet: so viele Beispiele wie nötig, so wenige wie möglich --- Beispiele
+werden nur so lange hinzugefügt, bis sich das Format des Modells stabilisiert.
+
+\subsection{Chain-of-Thought und Self-Consistency}
+
+Bei mehrstufigen Denkaufgaben (z.\,B. Rechenaufgaben, logische Schlussfolgerungen) hilft
+es, das Modell explizit aufzufordern, seinen Gedankengang Schritt für Schritt
+offenzulegen, statt direkt eine Endantwort zu liefern (\emph{Chain-of-Thought},
+z.\,B. durch einen Zusatz wie \enquote{Denke Schritt für Schritt}). Das verbessert die
+Genauigkeit bei komplexeren Aufgaben spürbar, weil das Modell seine eigene Herleitung
+\enquote{sieht} und darauf aufbauen kann, statt in einem Schritt zu raten.
+
+\emph{Self-Consistency} baut darauf auf: Man lässt das Modell dieselbe Chain-of-Thought-
+Aufgabe mehrfach mit unterschiedlicher Zufälligkeit (höhere Temperatur) durchlaufen und
+nimmt am Ende die häufigste (mehrheitliche) Antwort über alle Durchläufe. Das reduziert
+das Risiko, dass ein einzelner fehlerhafter Gedankengang die Endantwort verfälscht.
+
+\subsection{LangChain PromptTemplates}
+
+Ein \texttt{PromptTemplate} trennt den festen Wortlaut eines Prompts von den variablen
+Daten, die eingesetzt werden. Statt für jede Eingabe einen neuen String
+zusammenzubauen, definiert man eine Vorlage mit Platzhaltern
+(\lstinline|PromptTemplate.from_template("Erzähl mir einen {adjective} Witz über {topic}")|)
+und füllt sie bei Bedarf mit einem Dictionary
+(\lstinline|{"adjective": "lustigen", "topic": "Katzen"}|). Das macht Prompts
+wiederverwendbar und testbar --- ein Template bedient viele Eingaben, statt für jede neue
+Eingabe von Hand einen Prompt zu schreiben. \texttt{ChatPromptTemplate} tut dasselbe für
+ganze Nachrichtenlisten (System-/Human-Nachrichten mit Platzhaltern), und
+\texttt{MessagesPlaceholder} erlaubt es, an einer bestimmten Stelle im Template eine
+ganze, zur Laufzeit übergebene Liste von Nachrichten einzufügen (z.\,B. den bisherigen
+Gesprächsverlauf).
+
+\subsection{Output Parser: von Freitext zu strukturierten Daten}
+
+Ein LLM liefert von sich aus Freitext zurück. Für viele Anwendungen (z.\,B. eine
+Weboberfläche, die bestimmte Felder anzeigen will) reicht das nicht --- man braucht
+strukturierte, verlässlich geformte Daten. Ein Output Parser übernimmt genau diese
+Übersetzung. Die wichtigsten Varianten:
+\begin{itemize}
+    \item \texttt{JsonOutputParser} (ggf. mit einem Pydantic-\texttt{BaseModel}): erzwingt
+          ein bestimmtes JSON-Schema. Der Parser erzeugt dazu automatisch
+          Formatierungsanweisungen (\texttt{get\_format\_instructions()}), die man in den
+          Prompt einbettet, damit das Modell weiß, welches Format erwartet wird.
+    \item \texttt{CommaSeparatedListOutputParser}: parst eine kommagetrennte Antwort in
+          eine Python-Liste.
+    \item \texttt{StrOutputParser}: extrahiert einfach den reinen Text-String aus der
+          Modellantwort, nützlich als letztes Glied einer LCEL-Chain.
+\end{itemize}
+Diese Kombination aus Prompt-Formatinstruktionen und einem passenden Parser ist der
+Mechanismus, mit dem ein LLM zu einer zuverlässigen Datenquelle für den Rest einer
+Anwendung wird.
+
+\subsection{Retrieval-Augmented Generation: Dokumente, Splitter, Embeddings, Vektorspeicher, Retriever}
+
+RAG löst ein grundlegendes Problem von LLMs: Ihr Wissen ist auf die Trainingsdaten
+begrenzt und sie kennen private/aktuelle Dokumente nicht. RAG-Pipelines bestehen aus
+einer festen Abfolge von Bausteinen:
+\begin{enumerate}
+    \item \textbf{Document Loader} lädt Rohdaten (z.\,B. \texttt{PyPDFLoader} für PDFs,
+          \texttt{WebBaseLoader} für Webseiten) in \texttt{Document}-Objekte
+          (\texttt{page\_content} + \texttt{metadata}).
+    \item \textbf{Text Splitter} zerlegt lange Dokumente in kleinere Chunks, die in das
+          Kontextfenster des Modells passen (z.\,B. \texttt{CharacterTextSplitter},
+          \texttt{RecursiveCharacterTextSplitter}), mit einstellbarer Chunk-Größe und
+          Überlappung zwischen Chunks (damit an Chunk-Grenzen kein Kontext verloren geht).
+    \item \textbf{Embedding-Modell} (z.\,B. \texttt{WatsonxEmbeddings} mit
+          \texttt{\seqsplit{ibm/granite-embedding-278m-multilingual}}) wandelt jeden Chunk in einen
+          Vektor um, der die Bedeutung des Texts in einem hochdimensionalen Raum
+          repräsentiert.
+    \item \textbf{Vektorspeicher} (z.\,B. \texttt{Chroma}) speichert diese Vektoren und
+          erlaubt eine Ähnlichkeitssuche: Man embeddet eine Suchanfrage genauso und
+          erhält die Chunks, deren Vektoren am nächsten liegen.
+    \item \textbf{Retriever} ist die allgemeine Schnittstelle darüber (z.\,B.
+          \texttt{vectorstore.as\_retriever()}) --- er nimmt eine Text-Query entgegen und
+          liefert passende \texttt{Document}-Objekte zurück, unabhängig davon, wie sie
+          gespeichert sind. Ein \texttt{ParentDocumentRetriever} löst dabei einen
+          Zielkonflikt: kleine Chunks liefern präzisere Embeddings, größere Chunks
+          erhalten mehr Kontext --- dieser Retriever sucht über kleine Chunks, gibt aber
+          die zugehörigen größeren \enquote{Eltern-Chunks} zurück.
+    \item \textbf{RetrievalQA} verbindet Retriever und LLM zu einer fertigen
+          Frage-Antwort-Kette: Die Retriever-Treffer werden automatisch in den Prompt an
+          das LLM eingefügt (\texttt{stuff}), das daraus die Antwort formuliert.
+\end{enumerate}
+Kurz: RAG ist load $\rightarrow$ split $\rightarrow$ embed $\rightarrow$ store
+$\rightarrow$ retrieve $\rightarrow$ in den Prompt einfügen $\rightarrow$ generieren.
+
+\subsection{Gedächtnis (Memory) in Konversationen}
+
+Ein Chat-Modell selbst hat kein Gedächtnis zwischen zwei Aufrufen --- jeder Aufruf ist
+zustandslos. Damit eine Anwendung sich an frühere Nachrichten \enquote{erinnert}, muss der
+bisherige Verlauf bei jedem neuen Aufruf explizit mitgegeben werden. \texttt{
+ChatMessageHistory} ist dafür die einfachste Bausteinklasse: Sie sammelt
+\texttt{HumanMessage}s und \texttt{AIMessage}s und kann diese Liste dem Modell erneut
+übergeben. \texttt{ConversationBufferMemory} wickelt das automatisch in eine
+\texttt{ConversationChain} ein: Bei jedem neuen Nutzer-Input wird automatisch der
+gesamte bisherige Verlauf in den Prompt eingefügt.
+\texttt{ConversationSummaryMemory} macht dasselbe, komprimiert den Verlauf aber
+fortlaufend zu einer Zusammenfassung (per eigenem LLM-Aufruf) statt ihn vollständig zu
+wiederholen --- das hält den Prompt bei langen Gesprächen kürzer, auf Kosten von Detail.
+
+\subsection{Chains: klassisch vs. LCEL}
+
+Eine Chain verkettet mehrere Schritte (Prompt $\rightarrow$ LLM $\rightarrow$ Parser
+$\rightarrow$ ggf. nächster Prompt) zu einem Ablauf, der mit einem Aufruf ausgeführt
+wird. Es gibt zwei Bauweisen, die im Kurs bewusst nebeneinander gezeigt wurden:
+\begin{itemize}
+    \item \textbf{Klassisch} (\texttt{LLMChain}, \texttt{SequentialChain}): jeder
+          Schritt ist ein explizites Objekt mit einem benannten \texttt{output\_key};
+          mehrere Chains werden über diese Namen zu einer \texttt{SequentialChain}
+          zusammengesteckt. Funktional, aber vergleichsweise starr.
+    \item \textbf{LCEL} (LangChain Expression Language): Schritte werden mit dem
+          Pipe-Operator verbunden, z.\,B. \texttt{chain = prompt | llm | parser}.
+          Mehrstufige Abläufe, bei denen der Output eines Schritts in den nächsten
+          einfließt, werden mit \texttt{RunnablePassthrough.assign(...)} gebaut: Man übergibt
+          ihm einen neuen Schlüsselnamen und eine \texttt{lambda}-Funktion, die aus dem
+          bisherigen Eingabe-Dictionary den nächsten Wert berechnet. So werden dem
+          Dictionary schrittweise neue Felder hinzugefügt, ohne bestehende zu überschreiben.
+\end{itemize}
+LCEL gilt inzwischen als Standardweg für neue Chains; \texttt{SequentialChain} wird nur
+noch aus Kompatibilitätsgründen unterstützt.
+
+\subsection{Tools und Agenten (ReAct)}
+
+Ein LLM kann von sich aus nur Text erzeugen --- es kann nicht rechnen, nicht im Internet
+suchen, nicht auf externe Systeme zugreifen. Ein \textbf{Tool} ist eine Funktion mit
+Namen und Beschreibung (z.\,B. ein Python-Rechner über \texttt{PythonREPL}, oder eine
+eigene Funktion via \texttt{@tool}-Dekorator), die ein Agent bei Bedarf aufrufen kann.
+Ein \textbf{Agent} nutzt das LLM als Entscheidungsinstanz: Er überlegt, welches Tool zu
+einer Anfrage passt, ruft es mit passender Eingabe auf, liest das Ergebnis und
+entscheidet, ob noch ein weiterer Schritt nötig ist oder die Endantwort feststeht. Das
+im Kurs verwendete Muster ist \textbf{ReAct} (Reasoning + Acting): Der Agent durchläuft
+wiederholt den Zyklus \emph{Thought} (was tun?) $\rightarrow$ \emph{Action} (welches
+Tool, welche Eingabe?) $\rightarrow$ \emph{Observation} (Ergebnis des Tools), bis er
+mit \emph{Final Answer} abschließt. Technisch wird das mit
+\texttt{create\_react\_agent(llm, tools, prompt)} gebaut und von einem
+\texttt{AgentExecutor} ausgeführt, der diese Schleife orchestriert und Fehler beim
+Parsen der Modellantwort abfangen kann (\texttt{handle\_parsing\_errors=True}).
+
+\section{Praktische Umsetzung}
+
+\subsection{Lab 1 --- Prompt Engineering und LangChain PromptTemplates}
+
+In diesem Lab wurde \texttt{ibm/granite-4-h-small} über \texttt{langchain-ibm}s
+\texttt{WatsonxLLM} in einer wiederverwendbaren Hilfsfunktion
+\texttt{llm\_model(prompt, params)} gekapselt. Anhand identischer Aufgaben wurden
+Zero-Shot, One-Shot und Few-Shot verglichen, danach Chain-of-Thought für mehrstufige
+Denkaufgaben eingesetzt und mit Self-Consistency (mehrere Durchläufe, Mehrheitsantwort)
+kombiniert. Abschließend wurden hart kodierte Prompts durch \texttt{PromptTemplate}s mit
+Eingabevariablen ersetzt und mit dem Modell zu einer Chain verbunden. Fünf Übungen
+vertieften das an Aufgaben wie Zusammenfassung, Frage-Antwort, Klassifikation,
+Code-Generierung und Rollenspiel.
+
+\subsection{Lab 2 --- LangChain-Grundbausteine (RAG, Memory, Chains, Agenten)}
+
+Dieses Lab deckte in sieben Übungen den kompletten LangChain-Werkzeugkasten ab:
+
+\begin{itemize}
+    \item Modelle und Chat-Nachrichten; String- und Chat-\texttt{PromptTemplate}s samt
+          \texttt{MessagesPlaceholder}.
+    \item \texttt{JsonOutputParser} und \texttt{CommaSeparatedListOutputParser}.
+    \item Eine vollständige RAG-Pipeline: PDF-/Web-Loader, zwei Text-Splitter im
+          Vergleich, \texttt{WatsonxEmbeddings}, \texttt{Chroma} als Vektorspeicher,
+          ein Vektorspeicher- sowie ein \texttt{ParentDocumentRetriever}, und
+          \texttt{RetrievalQA} als fertige Frage-Antwort-Kette.
+    \item Gesprächsgedächtnis: \texttt{ChatMessageHistory} sowie
+          \texttt{ConversationBufferMemory} und \texttt{ConversationSummaryMemory}.
+    \item Chains klassisch (\texttt{LLMChain}/\texttt{SequentialChain}) vs. LCEL.
+    \item Ein ReAct-Agent mit einem Python-Rechner-Tool und einem eigenen
+          Text-Formatierungs-Tool.
+\end{itemize}
+
+\subsection{Abschlussprojekt --- GenAI Flask App}
+
+Das Abschlussprojekt (\enquote{Build Your First GenAI Application The Right Way}) bündelt die
+Kurskonzepte zu einer eigenständigen Flask-Webanwendung (\enquote{AI Assistant}): Ein Nutzer
+wählt im Frontend ein Modell aus (Granite, Llama oder Mistral) und stellt eine Frage; der
+Flask-Endpunkt \texttt{/generate} leitet sie an das gewählte Modell weiter. Die zentrale
+Neuerung gegenüber den Labs ist, dass die Antwort nicht mehr Freitext ist, sondern über
+ein Pydantic-Modell \texttt{AIResponse} (\texttt{summary}, \texttt{sentiment},
+\texttt{response}, \texttt{category}, \texttt{action}) und einen
+\texttt{JsonOutputParser} als validiertes JSON erzwungen wird --- geeignet für einen
+Kundensupport-Anwendungsfall, in dem eine nachgelagerte Anwendung mit diesen Feldern
+weiterarbeiten könnte. Da jedes Modell eine andere native Prompt-Syntax erwartet
+(Llamas Spezial-Tokens \texttt{<|begin\_of\_text|>}/\texttt{<|start\_header\_id|>},
+ein einfaches \texttt{System:}/\texttt{Human:}-Layout für Granite, Mistrals
+\texttt{[INST]}-Tags), bekommt jedes Modell sein eigenes \texttt{PromptTemplate} bei
+identischen Eingabevariablen. Eine Übung erweiterte das Schema zusätzlich um
+\texttt{category} und \texttt{action}, um dem Support-Mitarbeiter eine konkrete
+Handlungsempfehlung mitzugeben.
+
+\section{Wichtige Zusammenhänge und Fallstricke}
+
+\begin{itemize}
+    \item Prompt-Struktur hat oft einen größeren Effekt auf die Antwortqualität als
+          Parameter-Tuning: Bevor an \texttt{temperature}/\texttt{top\_p}/\texttt{top\_k}
+          gedreht wird, lohnt es sich meist mehr, das Prompt-Format (Beispiele, klare
+          Formatanweisungen) zu verbessern.
+    \item \texttt{JsonOutputParser} funktioniert nur zuverlässig, wenn die
+          Formatinstruktionen (\texttt{get\_format\_instructions()}) tatsächlich in den
+          Prompt eingebettet werden --- ein Modell \enquote{errät} das gewünschte JSON-Schema
+          sonst nicht zuverlässig.
+    \item Ein Prompt-Template, das für ein Modell funktioniert, überträgt sich nicht
+          automatisch auf ein anderes: Jede Modellfamilie hat ihr eigenes natives
+          Nachrichtenformat (siehe Abschlussprojekt); das im Kurs mehrfach gezeigte
+          Muster ist, dieselben logischen Eingaben (\texttt{system\_prompt},
+          \texttt{user\_prompt}) in mehrere modellspezifische Templates zu gießen.
+    \item RAG und Agenten setzen beide auf denselben Grundbausteinen auf (Prompt, LLM,
+          Parser) --- RAG ist eine feste Pipeline ohne Entscheidungslogik, ein Agent
+          entscheidet dagegen zur Laufzeit, welchen Schritt er als Nächstes braucht.
+    \item \texttt{SequentialChain} und LCEL lösen dieselbe Aufgabe; LCEL wird für neue
+          Chains empfohlen, \texttt{SequentialChain} taucht in älterem Code/Beispielen
+          aber weiterhin auf und sollte lesbar bleiben.
+\end{itemize}
+
+\begin{luecke}
+Die genauen Coursera-Modulnamen und die exakte Gliederung der Video-Lektionen lagen für
+dieses Kapitel nicht vollständig vor; die Struktur oben folgt der Reihenfolge, in der die
+Konzepte in den Labs und dem Abschlussprojekt tatsächlich verwendet wurden.
+\end{luecke}
+
+\section{Zusammenfassung: Das Wichtigste in Kürze}
+
+\begin{merke}
+\begin{itemize}[leftmargin=1.2em]
+    \item Ein Foundation Model wird über \texttt{model\_id}, \texttt{parameters}
+          (v.\,a. Temperatur) und \texttt{credentials} angesprochen; für LangChain wird es
+          mit \texttt{WatsonxLLM} umschlossen.
+    \item Few-Shot-Beispiele stabilisieren das Antwortformat; Chain-of-Thought plus
+          Self-Consistency verbessert mehrstufige Denkaufgaben.
+    \item \texttt{PromptTemplate} trennt Prompt-Wortlaut von variablen Daten und macht
+          Prompts wiederverwendbar; \texttt{ChatPromptTemplate}/\texttt{
+          MessagesPlaceholder} tun dasselbe für Nachrichtenlisten.
+    \item Ein Output Parser (v.\,a. \texttt{JsonOutputParser} mit einem Pydantic-Schema)
+          verwandelt Freitext in strukturierte, verlässliche Daten --- die Grundlage
+          jeder echten Anwendung, die mit der LLM-Antwort weiterarbeiten will.
+    \item RAG ist die feste Pipeline load $\rightarrow$ split $\rightarrow$ embed
+          $\rightarrow$ store $\rightarrow$ retrieve $\rightarrow$ generate;
+          \texttt{RetrievalQA} kapselt das Ganze in eine Zeile Code.
+    \item Gedächtnis muss aktiv verwaltet werden (\texttt{ChatMessageHistory},
+          \texttt{ConversationBufferMemory}/\texttt{ConversationSummaryMemory}) --- ein
+          LLM-Aufruf ist für sich genommen zustandslos.
+    \item LCEL (\texttt{prompt | llm | parser}) ist der moderne, empfohlene Weg, Chains
+          zu bauen; \texttt{SequentialChain} bleibt aus Kompatibilitätsgründen bestehen.
+    \item Ein Agent (z.\,B. ReAct) unterscheidet sich von einer Chain dadurch, dass er
+          zur Laufzeit entscheidet, welches Tool er wie oft aufruft, statt einen fest
+          vorgegebenen Ablauf abzuarbeiten.
+\end{itemize}
+\end{merke}

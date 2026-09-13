@@ -1,0 +1,101 @@
+\documentclass[11pt,a4paper]{report}
+
+% ============================================================
+%  IBM "RAG and Agentic AI" Spezialisierung — Kursdokumentation
+%  Ein Kapitel pro Kurs (10 Kurse insgesamt).
+% ============================================================
+
+\usepackage[ngerman]{babel}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[a4paper,margin=2.5cm]{geometry}
+\usepackage{hyperref}
+\usepackage{xcolor}
+\usepackage{listings}
+\usepackage{enumitem}
+\usepackage{tcolorbox}
+\usepackage{booktabs}
+\usepackage{graphicx}
+\usepackage{titlesec}
+\usepackage{parskip}
+\usepackage[strict=true]{csquotes}
+\usepackage{seqsplit}
+\usepackage[htt]{hyphenat}
+
+\tcbuselibrary{skins,breakable}
+
+% --- Code-Stil (Python, LangChain-Snippets etc.) ---
+\lstdefinestyle{code}{
+    basicstyle=\ttfamily\small,
+    keywordstyle=\color{blue!70!black}\bfseries,
+    commentstyle=\color{gray},
+    stringstyle=\color{teal!70!black},
+    breaklines=true,
+    breakatwhitespace=false,
+    numbers=left,
+    numberstyle=\tiny\color{gray},
+    frame=single,
+    rulecolor=\color{gray!50},
+    backgroundcolor=\color{gray!5},
+    tabsize=4,
+    showstringspaces=false
+}
+\lstset{
+    style=code,
+    literate=%
+        {Ä}{{\"A}}1 {Ö}{{\"O}}1 {Ü}{{\"U}}1
+        {ä}{{\"a}}1 {ö}{{\"o}}1 {ü}{{\"u}}1
+        {ß}{{\ss}}1
+}
+
+% --- Box "Das Wichtigste in Kürze" (wird am Ende jedes Kapitels benutzt) ---
+\newtcolorbox{merke}[1][]{%
+    colback=blue!5,
+    colframe=blue!40!black,
+    fonttitle=\bfseries,
+    title=Das Wichtigste in Kürze,
+    breakable,
+    #1
+}
+
+% --- Box für offene Punkte / Lücken im Quellmaterial ---
+\newtcolorbox{luecke}[1][]{%
+    colback=orange!5,
+    colframe=orange!60!black,
+    fonttitle=\bfseries,
+    title=Anmerkung zum Quellmaterial,
+    breakable,
+    #1
+}
+
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue!50!black,
+    urlcolor=blue!50!black,
+    citecolor=blue!50!black,
+    pdftitle={Kursdokumentation -- IBM RAG and Agentic AI Spezialisierung},
+    pdfauthor={Zidane K.}
+}
+
+\title{Kursdokumentation\\[0.3em]
+       \large IBM ``RAG and Agentic AI'' Spezialisierung (Coursera)}
+\author{Zidane K.}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+\tableofcontents
+
+\input{chapters/kapitel01_generative_ai_get_started}
+\input{chapters/kapitel02_build_rag_applications}
+\input{chapters/kapitel03_vector_databases}
+\input{chapters/kapitel04_advanced_rag_retrievers}
+\input{chapters/kapitel05_multimodal_generative_ai}
+\input{chapters/kapitel06_fundamentals_ai_agents}
+\input{chapters/kapitel07_agentic_langchain_langgraph}
+\input{chapters/kapitel08_agentic_langgraph_crewai_autogen_beeai}
+\input{chapters/kapitel09_ai_agents_mcp}
+\input{chapters/kapitel10_capstone_project}
+
+\end{document}
