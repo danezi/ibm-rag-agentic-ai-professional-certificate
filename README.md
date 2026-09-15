@@ -42,7 +42,7 @@ Legend: 🟢 Done · 🟡 In progress · ⚪ Not started
 | 9  | Build AI Agents using MCP | ⚪ Not started | [`09-build-ai-agents-using-mcp/`](./09-build-ai-agents-using-mcp/) |
 | 10 | RAG and Agentic AI Capstone Project | ⚪ Not started | [`10-rag-agentic-ai-capstone-project/`](./10-rag-agentic-ai-capstone-project/) |
 
-_Current status: 2 of 10 courses in progress, 1 completed. Updated 2026-09-12._
+_Current status: 2 of 10 courses in progress, 1 completed. Updated 2026-09-15._
 
 ## 🏆 Capstone Project Highlight
 

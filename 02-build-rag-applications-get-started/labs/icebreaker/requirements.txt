@@ -1,0 +1,9 @@
+ibm-watsonx-ai
+llama-index
+llama-index-core
+llama-index-llms-ibm
+llama-index-embeddings-ibm
+llama-index-readers-web
+llama-hub
+requests
+gradio
