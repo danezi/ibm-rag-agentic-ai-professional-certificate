@@ -32,7 +32,7 @@ Legend: 🟢 Done · 🟡 In progress · ⚪ Not started
 | #  | Course | Status | Folder |
 |----|--------|--------|--------|
 | 1  | Develop Generative AI Applications: Get Started | 🟢 Done | [`01-generative-ai-get-started/`](./01-generative-ai-get-started/) |
-| 2  | Build RAG Applications: Get Started | 🟡 In progress (~6%) | [`02-build-rag-applications-get-started/`](./02-build-rag-applications-get-started/) |
+| 2  | Build RAG Applications: Get Started | 🟢 Done | [`02-build-rag-applications-get-started/`](./02-build-rag-applications-get-started/) |
 | 3  | Vector Databases for RAG: An Introduction | ⚪ Not started | [`03-vector-databases-for-rag/`](./03-vector-databases-for-rag/) |
 | 4  | Advanced RAG with Vector Databases and Retrievers | ⚪ Not started | [`04-advanced-rag-vector-databases-retrievers/`](./04-advanced-rag-vector-databases-retrievers/) |
 | 5  | Build Multimodal Generative AI Applications | 🟡 In progress (~3%) | [`05-build-multimodal-generative-ai-applications/`](./05-build-multimodal-generative-ai-applications/) |
@@ -42,7 +42,7 @@ Legend: 🟢 Done · 🟡 In progress · ⚪ Not started
 | 9  | Build AI Agents using MCP | ⚪ Not started | [`09-build-ai-agents-using-mcp/`](./09-build-ai-agents-using-mcp/) |
 | 10 | RAG and Agentic AI Capstone Project | ⚪ Not started | [`10-rag-agentic-ai-capstone-project/`](./10-rag-agentic-ai-capstone-project/) |
 
-_Current status: 2 of 10 courses in progress, 1 completed. Updated 2026-09-15._
+_Current status: 1 of 10 courses in progress, 2 completed. Updated 2026-09-15._
 
 ## 🏆 Capstone Project Highlight
 
