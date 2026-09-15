@@ -5,6 +5,16 @@ A small end-to-end RAG application: it pulls a LinkedIn profile, indexes it, and
 chat with an LLM that only answers from that profile's data — a "conversation icebreaker"
 generator plus a Q&A bot over one person's career/education history.
 
+## Screenshots
+
+![Gradio "Process LinkedIn Profile" tab with mock data enabled, LinkedIn URL set to a placeholder johndoe profile, and the generated "Initial Facts" panel listing 3 facts about the mock profile (Leon Katsnelson)](./screenshot-1.png)
+
+![Same Gradio tab with a different (company-page) LinkedIn URL entered; since "Use Mock Data" is checked, the same mock profile facts are generated regardless of the URL typed in](./screenshot-2.png)
+
+Both runs use `Use Mock Data` (no ProxyCurl API key needed) with `ibm/granite-4-h-small`
+as the selected model — the URL field is only used when mock data is unchecked, which is
+why both screenshots return the same three facts about the mock profile.
+
 ## What it does
 
 1. **Extract** — `modules/data_extraction.py` fetches a LinkedIn profile either via the
