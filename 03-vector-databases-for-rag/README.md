@@ -2,7 +2,7 @@
 
 **Coursera course:** [https://www.coursera.org/learn/[course-slug]](https://www.coursera.org/learn/[course-slug])
 **Part of:** [IBM RAG and Agentic AI Specialization](../README.md)
-**Status:** 🟡 In progress (Labs 1–3 + final project done)
+**Status:** 🟢 Done
 
 ## Learning goals
 
