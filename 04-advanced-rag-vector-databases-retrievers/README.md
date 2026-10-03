@@ -2,7 +2,7 @@
 
 **Coursera course:** [https://www.coursera.org/learn/[course-slug]](https://www.coursera.org/learn/[course-slug])
 **Part of:** [IBM RAG and Agentic AI Specialization](../README.md)
-**Status:** 🟡 In progress (Lab 1 done)
+**Status:** 🟡 In progress (Labs 1–2 done)
 
 ## Learning goals
 
@@ -26,6 +26,21 @@
 - **Code:** [`labs/Build a Smarter Search with LangChain Context Retrieval.ipynb`](<./labs/Build%20a%20Smarter%20Search%20with%20LangChain%20Context%20Retrieval.ipynb>)
 - **Key learning:** "Retriever" isn't one algorithm, it's an interface with several strategies behind it, each fixing a different weakness of plain similarity search: MMR fixes redundant results, Multi-Query fixes query-wording sensitivity by asking the same question multiple ways, Self-Querying fixes the "I need semantic search AND an exact filter" case by having the LLM write the filter instead of the developer, and Parent Document fixes the precision-vs-context trade-off in chunk sizing. Also, a shared vector store collection is stateful — reusing `vectordb` across sections without clearing it silently mixes datasets, a failure mode that only shows up as wrong (not missing) results, which made explicitly deleting existing embeddings before re-populating necessary in both exercises.
 
+### Lab 2 — Explore Advanced Retrievers in LlamaIndex
+
+- **Task:** Port the same "advanced retriever" idea from Lab 1 (LangChain) over to LlamaIndex, covering six retriever types — Vector Index, BM25, Document Summary Index (LLM- and embedding-based), Auto Merging, Recursive, and Query Fusion (with three fusion modes) — on a shared 10-document AI/ML sample corpus, then build a custom hybrid retriever and a small production-style RAG pipeline. Includes 2 exercises.
+- **Approach:**
+  - **Setup:** `WatsonxLLM` (`ibm/granite-4-h-small`) via the official `llama-index-llms-ibm` integration for generation/query-fusion, `HuggingFaceEmbedding` (`BAAI/bge-small-en-v1.5`) for all embeddings, both registered globally via LlamaIndex's `Settings.llm` / `Settings.embed_model` so every index/retriever created afterward picks them up automatically instead of being passed explicitly each time.
+  - **Vector Index Retriever:** the baseline — `VectorIndexRetriever`/`index.as_retriever()` over a `VectorStoreIndex`, ranking nodes by cosine similarity (`similarity_top_k`).
+  - **BM25 Retriever:** a keyword-based retriever (`BM25Retriever.from_defaults`, with a `PyStemmer` stemmer) run against the *same* nodes as the vector index, directly contrasting semantic vs. lexical retrieval on identical data — e.g. for "neural networks deep learning", BM25 explicitly surfaces which query terms matched in each result, something cosine similarity alone doesn't expose.
+  - **Document Summary Index Retrievers:** built a `DocumentSummaryIndex` (auto-generates a summary per document at indexing time), then compared `DocumentSummaryIndexLLMRetriever` (an LLM reads the summaries to pick relevant documents — more accurate, more expensive) against `DocumentSummaryIndexEmbeddingRetriever` (cosine similarity over summary embeddings — cheaper, less nuanced) for document-level filtering before full-content retrieval.
+  - **Auto Merging Retriever:** built a 3-level `HierarchicalNodeParser` (chunk sizes 512/256/128) over a `SimpleDocumentStore`, retrieved against the smallest chunks, and let `AutoMergingRetriever` substitute in the larger parent chunk whenever enough of its children were retrieved — the LlamaIndex-native version of Lab 1's `ParentDocumentRetriever` pattern, but driven by a 3-tier hierarchy and a "how many children matched" merge rule instead of a flat 2-tier LangChain split.
+  - **Recursive Retriever:** attached `references` metadata linking each document to two others, built a `retriever_dict` mapping document IDs to per-document retrievers plus one root ("vector") retriever, and let `RecursiveRetriever` traverse those references during retrieval — the pattern used for citation graphs or cross-referenced docs, where a match in one node should pull in content it explicitly points to.
+  - **Query Fusion Retriever (3 modes):** wrapped the vector retriever in `QueryFusionRetriever` three times with the same query, comparing `mode="reciprocal_rerank"` (RRF — sums `1/(rank+k)` across LLM-generated query variants, robust to score-scale differences), `mode="relative_score"` (normalizes each variant's scores by its own max before combining, preserving confidence magnitude), and `mode="dist_based_score"` (z-score/percentile normalization over each variant's score distribution) — same underlying idea as Lab 1's `MultiQueryRetriever`, but with three explicit, swappable strategies for *how* the multiple result sets get merged instead of a single implicit union.
+  - **Exercises:** (1) built a custom hybrid retriever from scratch combining the Vector Index and BM25 retrievers manually — normalizing each retriever's scores by its own max and averaging them per result, matching results across the two retrievers **by text content** rather than node ID (a LlamaIndex-specific gotcha: different retrievers assign different IDs to equivalent nodes); (2) built a minimal `ProductionRAGPipeline` class with simple keyword-based query routing (semantic vs. comprehensive), retrieval, prompt assembly, and basic success/failure evaluation per query.
+- **Code:** [`labs/Explore Advanced Retrievers in LlamaIndex.ipynb`](<./labs/Explore%20Advanced%20Retrievers%20in%20LlamaIndex.ipynb>)
+- **Key learning:** LangChain and LlamaIndex converge on the same core retrieval ideas (vector search, parent/child context preservation, multi-query robustness) but frame them differently — LlamaIndex's Auto Merging and Query Fusion retrievers are more explicit/configurable versions of LangChain's Parent Document and Multi-Query retrievers from Lab 1. The exercise also surfaced a cross-library gotcha with no LangChain equivalent in Lab 1: when combining results from two different retriever instances, their internal node IDs aren't comparable, so deduplication/fusion logic has to key on something stable like text content instead.
+
 ## Key takeaways
 
 - MMR search (`search_type="mmr"`) trades strict top-k similarity for diversity — useful when top results risk being near-duplicates of each other.
@@ -34,11 +49,16 @@
 - `SelfQueryRetriever` has the LLM translate a natural-language request into a structured metadata filter (given an `AttributeInfo` schema), combining semantic search with exact filtering without the developer hand-writing the filter logic.
 - `ParentDocumentRetriever` indexes small chunks for embedding accuracy but returns their larger parent chunk on retrieval — resolving the chunk-size trade-off between semantic precision and retained context.
 - A vector store collection reused across cells/datasets is stateful and must be explicitly cleared (`vectordb.delete(ids)`) before repopulating with different documents, or results silently mix old and new data.
+- BM25 (keyword/lexical) and vector similarity (semantic) retrieval are complementary, not redundant: running both on the same nodes and comparing results — rather than fusing blindly — makes it obvious which approach wins for a given query type.
+- `AutoMergingRetriever` (LlamaIndex) and `ParentDocumentRetriever` (LangChain) solve the identical chunk-size trade-off; Query Fusion's three modes (RRF, relative score, distribution-based) make explicit what `MultiQueryRetriever` does implicitly with a plain union of results.
+- When combining results from two independently-created retrievers, don't assume shared node IDs — different retriever/index instances can assign different IDs to equivalent content, so match/deduplicate by text content instead.
 
 ## Tools & libraries
 
 - Python, Jupyter Notebook
 - LangChain — `langchain`, `langchain-community`, `langchain-core`, `langchain-text-splitters`; retrievers: `MultiQueryRetriever`, `SelfQueryRetriever`, `ParentDocumentRetriever`
-- IBM watsonx.ai (`ibm-watsonx-ai`, `langchain-ibm`) — `WatsonxLLM` (`mistralai/mistral-small-3-1-24b-instruct-2503`), `WatsonxEmbeddings` (`ibm/granite-embedding-278m-multilingual`)
-- ChromaDB (`chromadb`) — vector store backing every retriever type in this lab
+- LlamaIndex — `llama-index-core`, `llama-index-llms-ibm`, `llama-index-embeddings-huggingface`, `llama-index-retrievers-bm25`; retrievers: `VectorIndexRetriever`, `BM25Retriever`, `DocumentSummaryIndexLLMRetriever`/`DocumentSummaryIndexEmbeddingRetriever`, `AutoMergingRetriever`, `RecursiveRetriever`, `QueryFusionRetriever`
+- IBM watsonx.ai (`ibm-watsonx-ai`, `langchain-ibm`) — `WatsonxLLM` (`mistralai/mistral-small-3-1-24b-instruct-2503` in LangChain, `ibm/granite-4-h-small` in LlamaIndex), `WatsonxEmbeddings` (`ibm/granite-embedding-278m-multilingual`)
+- `sentence-transformers` / `HuggingFaceEmbedding` (`BAAI/bge-small-en-v1.5`) for LlamaIndex embeddings; `rank-bm25` + `PyStemmer` for BM25
+- ChromaDB (`chromadb`) — vector store backing every retriever type in Lab 1
 - `pypdf` (PDF loading), `lark` (query-constructor parsing required by `SelfQueryRetriever`)
