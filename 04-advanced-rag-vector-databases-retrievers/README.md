@@ -2,7 +2,7 @@
 
 **Coursera course:** [https://www.coursera.org/learn/[course-slug]](https://www.coursera.org/learn/[course-slug])
 **Part of:** [IBM RAG and Agentic AI Professional Certificate](../README.md)
-**Status:** 🟡 In progress (Labs 1–3 done)
+**Status:** 🟢 Done
 
 ## Learning goals
 
@@ -52,6 +52,18 @@
 - **Code:** [`labs/Semantic Similarity with FAISS.ipynb`](<./labs/Semantic%20Similarity%20with%20FAISS.ipynb>)
 - **Key learning:** This lab strips away the LangChain/LlamaIndex abstraction from Labs 1–2 and shows what a "retriever" actually *is* underneath: preprocess → embed → add to an index → embed the query → nearest-neighbor search. `IndexFlatL2` is the FAISS equivalent of the exhaustive pairwise-distance computation done by hand in Course 3's Lab 1 — exact but linear-time per query, which is why FAISS (and vector DBs generally) also offer approximate indexes (`IndexIVFFlat`, `IndexIVFPQ`, HNSW-style structures) that trade a little accuracy for sublinear search time at scale. Preprocessing consistency also matters more than it looks: the query has to go through the *exact same* cleaning function as the documents, or the embedding space the query lands in won't match the one the documents were indexed in.
 
+## Final Project — AI-Powered YouTube Summarizer & Q&A Tool (RAG, LangChain, FAISS)
+
+- **Task:** Build an end-to-end RAG application — not a notebook exercise, a deployed Gradio app — that takes any YouTube URL, fetches its transcript, and lets a user either get a one-paragraph summary or ask free-form questions answered strictly from that video's content.
+- **Approach:**
+  - **Transcript extraction:** `get_video_id` regex-extracts the 11-character video ID from a YouTube URL; `get_transcript` (`youtube_transcript_api`) fetches available transcripts, preferring a manually-created one over an auto-generated one if both exist. `process` strips each transcript entry down to `Text: ... Start: ...` lines, keeping the timestamp as retrievable context instead of discarding it.
+  - **Summarization path:** the full processed transcript (unchunked) is passed directly into a Llama-style prompt template (`<|begin_of_text|>...`) run through `WatsonxLLM` (`ibm/granite-8b-code-instruct`) via an `LLMChain`, producing a single-paragraph summary — no retrieval step needed since the whole transcript fits in context for a summary task.
+  - **Q&A path:** the transcript is split (`RecursiveCharacterTextSplitter`, 200/20) into chunks, embedded with `WatsonxEmbeddings` (`ibm/slate-30m-english-rtrvr-v2`), and indexed into a `FAISS` vector store (`FAISS.from_texts`) — rebuilt fresh per video. A `retrieve(query, faiss_index, k=7)` similarity search pulls the 7 most relevant chunks, which are stuffed into a second prompt template (context + question) and run through a separate Q&A `LLMChain` — the standard RAG retrieve-then-generate pattern, but built from FAISS primitives directly instead of a framework retriever class.
+  - **Interface:** a `gr.Blocks()` Gradio app with a video-URL field, two buttons (Summarize / Ask a Question), and output boxes for the summary and the answer, served on port 7860.
+  - **Testing beyond the lab's own script:** ran the two example questions from the lab (on the required RAG-intro test video), then went further and tested the app on two unrelated videos of my own choosing (an AWS "Cloud Report" episode on AI chips, and one on AWS cost/"tokenomics" tooling) — including asking a question **in German** ("Warum AWS?") against an English-transcript video and getting a correctly grounded, context-specific answer back, confirming the retrieval + generation pipeline generalizes past the single demo video it ships with.
+- **Code:** [`labs/final-project-youtube-rag-qa/ytbot.py`](./labs/final-project-youtube-rag-qa/ytbot.py) — screenshots: [lab example 1](./labs/final-project-youtube-rag-qa/screenshot-1-hallucinations-qa.png), [lab example 2](./labs/final-project-youtube-rag-qa/screenshot-2-rag-problems-qa.png), [custom video — AI chips](./labs/final-project-youtube-rag-qa/screenshot-3-custom-video-aws-chips.png), [custom video — German question](./labs/final-project-youtube-rag-qa/screenshot-4-custom-video-german-question.png)
+- **Key learning:** Not every step of a RAG app needs retrieval — summarization here feeds the whole transcript straight to the LLM because it fits in context and the task doesn't need *selective* grounding, while Q&A specifically needs retrieval because a single question should only be answered from the few relevant chunks, not the entire transcript. This is also the first project in the portfolio to use FAISS as the retrieval backend of a real application (rather than an isolated indexing exercise like Lab 3), and to combine two *different* prompt templates and `LLMChain`s for two distinct tasks (summarization vs. Q&A) within one app sharing the same transcript-processing and embedding pipeline underneath.
+
 ## Key takeaways
 
 - MMR search (`search_type="mmr"`) trades strict top-k similarity for diversity — useful when top results risk being near-duplicates of each other.
@@ -65,14 +77,17 @@
 - When combining results from two independently-created retrievers, don't assume shared node IDs — different retriever/index instances can assign different IDs to equivalent content, so match/deduplicate by text content instead.
 - At its core, every retriever in this course reduces to the same four steps: preprocess → embed → index → nearest-neighbor search on the query embedding. FAISS's `IndexFlatL2` makes this explicit and exact; LangChain/LlamaIndex retrievers wrap the same steps (plus optional re-ranking, filtering, or fusion) behind a higher-level interface.
 - Query preprocessing must mirror document preprocessing exactly — embedding a differently-cleaned query puts it in a slightly different vector space than the indexed documents, silently degrading retrieval quality.
+- Not every LLM-powered feature needs retrieval: whether to retrieve-then-generate or just generate depends on whether the task needs *selective* grounding (Q&A) or can consume the full available context directly (summarizing a single transcript).
+- The same embedding + FAISS-index pipeline can serve multiple distinct LLM tasks (summarization, Q&A) in one app, each with its own prompt template and chain, as long as they share consistent preprocessing.
 
 ## Tools & libraries
 
 - Python, Jupyter Notebook
 - LangChain — `langchain`, `langchain-community`, `langchain-core`, `langchain-text-splitters`; retrievers: `MultiQueryRetriever`, `SelfQueryRetriever`, `ParentDocumentRetriever`
 - LlamaIndex — `llama-index-core`, `llama-index-llms-ibm`, `llama-index-embeddings-huggingface`, `llama-index-retrievers-bm25`; retrievers: `VectorIndexRetriever`, `BM25Retriever`, `DocumentSummaryIndexLLMRetriever`/`DocumentSummaryIndexEmbeddingRetriever`, `AutoMergingRetriever`, `RecursiveRetriever`, `QueryFusionRetriever`
-- IBM watsonx.ai (`ibm-watsonx-ai`, `langchain-ibm`) — `WatsonxLLM` (`mistralai/mistral-small-3-1-24b-instruct-2503` in LangChain, `ibm/granite-4-h-small` in LlamaIndex), `WatsonxEmbeddings` (`ibm/granite-embedding-278m-multilingual`)
+- IBM watsonx.ai (`ibm-watsonx-ai`, `langchain-ibm`) — `WatsonxLLM` (`mistralai/mistral-small-3-1-24b-instruct-2503` in LangChain, `ibm/granite-4-h-small` in LlamaIndex, `ibm/granite-8b-code-instruct` in the final project), `WatsonxEmbeddings` (`ibm/granite-embedding-278m-multilingual`, `ibm/slate-30m-english-rtrvr-v2` in the final project)
 - `sentence-transformers` / `HuggingFaceEmbedding` (`BAAI/bge-small-en-v1.5`) for LlamaIndex embeddings; `rank-bm25` + `PyStemmer` for BM25
 - ChromaDB (`chromadb`) — vector store backing every retriever type in Lab 1
 - `pypdf` (PDF loading), `lark` (query-constructor parsing required by `SelfQueryRetriever`)
 - FAISS (`faiss-cpu`) — exact L2 similarity index; TensorFlow + TensorFlow Hub (`universal-sentence-encoder/4`) for embeddings; `scikit-learn` (`fetch_20newsgroups` dataset)
+- `youtube-transcript-api` (transcript extraction), Gradio (`gr.Blocks()` web UI) — final project
