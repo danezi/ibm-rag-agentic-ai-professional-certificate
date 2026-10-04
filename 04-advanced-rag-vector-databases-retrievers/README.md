@@ -2,7 +2,7 @@
 
 **Coursera course:** [https://www.coursera.org/learn/[course-slug]](https://www.coursera.org/learn/[course-slug])
 **Part of:** [IBM RAG and Agentic AI Professional Certificate](../README.md)
-**Status:** 🟡 In progress (Labs 1–2 done)
+**Status:** 🟡 In progress (Labs 1–3 done)
 
 ## Learning goals
 
@@ -41,6 +41,17 @@
 - **Code:** [`labs/Explore Advanced Retrievers in LlamaIndex.ipynb`](<./labs/Explore%20Advanced%20Retrievers%20in%20LlamaIndex.ipynb>)
 - **Key learning:** LangChain and LlamaIndex converge on the same core retrieval ideas (vector search, parent/child context preservation, multi-query robustness) but frame them differently — LlamaIndex's Auto Merging and Query Fusion retrievers are more explicit/configurable versions of LangChain's Parent Document and Multi-Query retrievers from Lab 1. The exercise also surfaced a cross-library gotcha with no LangChain equivalent in Lab 1: when combining results from two different retriever instances, their internal node IDs aren't comparable, so deduplication/fusion logic has to key on something stable like text content instead.
 
+### Lab 3 — Semantic Similarity with FAISS
+
+- **Task:** Build a semantic search engine from scratch on a large, messy real-world text corpus (the 20 Newsgroups dataset, ~20,000 posts across 20 topics) using the Universal Sentence Encoder for embeddings and FAISS for the similarity index — a lower-level, non-framework counterpart to Labs 1–2's LangChain/LlamaIndex retrievers.
+- **Approach:**
+  - **Preprocessing:** wrote `preprocess_text` to strip email headers (`From:` lines), email addresses, punctuation/numbers, and casing/whitespace noise from every raw newsgroup post before embedding — necessary because the raw posts carry a lot of header/metadata noise unrelated to semantic content.
+  - **Embedding:** loaded Google's pre-trained Universal Sentence Encoder (`tensorflow_hub`, `universal-sentence-encoder/4`) and embedded every preprocessed document into a fixed-size vector via `embed_text`, stacking all of them into one `X_use` matrix (`np.vstack`) — the TensorFlow/TF-Hub equivalent of the `sentence-transformers`/`WatsonxEmbeddings` calls used in Labs 1–2.
+  - **Indexing:** built a `faiss.IndexFlatL2(dimension)` index (brute-force, exact L2/Euclidean distance — no approximation) and added all document vectors with `index.add(X_use)`.
+  - **Querying:** a `search(query_text, k)` function that preprocesses the query the same way as the documents, embeds it, and calls `index.search()` for the `k` nearest neighbors by L2 distance — tested with the query "motorcycle", correctly surfacing a first-person post about buying a first motorcycle despite no exact keyword overlap in how the question was phrased, and displayed both the preprocessed and original document text for comparison.
+- **Code:** [`labs/Semantic Similarity with FAISS.ipynb`](<./labs/Semantic%20Similarity%20with%20FAISS.ipynb>)
+- **Key learning:** This lab strips away the LangChain/LlamaIndex abstraction from Labs 1–2 and shows what a "retriever" actually *is* underneath: preprocess → embed → add to an index → embed the query → nearest-neighbor search. `IndexFlatL2` is the FAISS equivalent of the exhaustive pairwise-distance computation done by hand in Course 3's Lab 1 — exact but linear-time per query, which is why FAISS (and vector DBs generally) also offer approximate indexes (`IndexIVFFlat`, `IndexIVFPQ`, HNSW-style structures) that trade a little accuracy for sublinear search time at scale. Preprocessing consistency also matters more than it looks: the query has to go through the *exact same* cleaning function as the documents, or the embedding space the query lands in won't match the one the documents were indexed in.
+
 ## Key takeaways
 
 - MMR search (`search_type="mmr"`) trades strict top-k similarity for diversity — useful when top results risk being near-duplicates of each other.
@@ -52,6 +63,8 @@
 - BM25 (keyword/lexical) and vector similarity (semantic) retrieval are complementary, not redundant: running both on the same nodes and comparing results — rather than fusing blindly — makes it obvious which approach wins for a given query type.
 - `AutoMergingRetriever` (LlamaIndex) and `ParentDocumentRetriever` (LangChain) solve the identical chunk-size trade-off; Query Fusion's three modes (RRF, relative score, distribution-based) make explicit what `MultiQueryRetriever` does implicitly with a plain union of results.
 - When combining results from two independently-created retrievers, don't assume shared node IDs — different retriever/index instances can assign different IDs to equivalent content, so match/deduplicate by text content instead.
+- At its core, every retriever in this course reduces to the same four steps: preprocess → embed → index → nearest-neighbor search on the query embedding. FAISS's `IndexFlatL2` makes this explicit and exact; LangChain/LlamaIndex retrievers wrap the same steps (plus optional re-ranking, filtering, or fusion) behind a higher-level interface.
+- Query preprocessing must mirror document preprocessing exactly — embedding a differently-cleaned query puts it in a slightly different vector space than the indexed documents, silently degrading retrieval quality.
 
 ## Tools & libraries
 
@@ -62,3 +75,4 @@
 - `sentence-transformers` / `HuggingFaceEmbedding` (`BAAI/bge-small-en-v1.5`) for LlamaIndex embeddings; `rank-bm25` + `PyStemmer` for BM25
 - ChromaDB (`chromadb`) — vector store backing every retriever type in Lab 1
 - `pypdf` (PDF loading), `lark` (query-constructor parsing required by `SelfQueryRetriever`)
+- FAISS (`faiss-cpu`) — exact L2 similarity index; TensorFlow + TensorFlow Hub (`universal-sentence-encoder/4`) for embeddings; `scikit-learn` (`fetch_20newsgroups` dataset)
