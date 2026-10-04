@@ -1,7 +1,7 @@
 # Course 7 — Agentic AI with LangChain and LangGraph
 
 **Coursera course:** [https://www.coursera.org/learn/[course-slug]](https://www.coursera.org/learn/[course-slug])
-**Part of:** [IBM RAG and Agentic AI Specialization](../README.md)
+**Part of:** [IBM RAG and Agentic AI Professional Certificate](../README.md)
 **Status:** ⚪ Not started
 
 ## Learning goals

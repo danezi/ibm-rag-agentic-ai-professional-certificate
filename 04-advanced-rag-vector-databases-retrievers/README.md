@@ -1,7 +1,7 @@
 # Course 4 — Advanced RAG with Vector Databases and Retrievers
 
 **Coursera course:** [https://www.coursera.org/learn/[course-slug]](https://www.coursera.org/learn/[course-slug])
-**Part of:** [IBM RAG and Agentic AI Specialization](../README.md)
+**Part of:** [IBM RAG and Agentic AI Professional Certificate](../README.md)
 **Status:** 🟡 In progress (Labs 1–2 done)
 
 ## Learning goals

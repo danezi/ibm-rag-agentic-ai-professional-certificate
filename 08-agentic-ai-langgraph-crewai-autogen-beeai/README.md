@@ -1,7 +1,7 @@
 # Course 8 — Agentic AI with LangGraph, CrewAI, AutoGen and BeeAI
 
 **Coursera course:** [https://www.coursera.org/learn/[course-slug]](https://www.coursera.org/learn/[course-slug])
-**Part of:** [IBM RAG and Agentic AI Specialization](../README.md)
+**Part of:** [IBM RAG and Agentic AI Professional Certificate](../README.md)
 **Status:** ⚪ Not started
 
 ## Learning goals

@@ -1,7 +1,7 @@
 # Course 5 — Build Multimodal Generative AI Applications
 
 **Coursera course:** [https://www.coursera.org/learn/[course-slug]](https://www.coursera.org/learn/[course-slug])
-**Part of:** [IBM RAG and Agentic AI Specialization](../README.md)
+**Part of:** [IBM RAG and Agentic AI Professional Certificate](../README.md)
 **Status:** 🟡 In progress (~3%)
 
 ## Learning goals
