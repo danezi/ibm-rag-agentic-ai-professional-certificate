@@ -48,7 +48,10 @@
   - **Structured output:** a Pydantic schema (`summary`, `sentiment`, `response`, `category`, `action`) enforced with `JsonOutputParser`.
   - **Model-specific prompts:** each model family gets its own template with its native special tokens.
   - **Frontend:** a minimal chat page with a model selector.
-- **Code:** [`labs/genai_flask_app/`](./labs/genai_flask_app/) — [screenshot](./labs/genai_flask_app/screenshot.png)
+- **Code:** [`labs/genai_flask_app/`](./labs/genai_flask_app/)
+- **Screenshots:**
+
+  ![AI Assistant Flask app](<./labs/genai_flask_app/screenshot.png>)
 - **Key learning:** The real work is not the chat interface but reliable output: a validated JSON schema and prompts adapted to each model family.
 
 ## Key takeaways

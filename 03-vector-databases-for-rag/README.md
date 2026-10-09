@@ -30,7 +30,10 @@
   - Created a ChromaDB collection with automatic embeddings (`all-MiniLM-L6-v2`) and cosine distance (`hnsw.space: "cosine"`).
   - Inserted 14 grocery items with metadata and ran a similarity query for "apple".
   - Result: `golden apple`, `fresh red apples`, `red fruit`, ranked by distance.
-- **Code:** [`labs/chroma-similarity-search/similarity_search.py`](./labs/chroma-similarity-search/similarity_search.py) — [terminal run](./labs/chroma-similarity-search/screenshot-run.png)
+- **Code:** [`labs/chroma-similarity-search/similarity_search.py`](./labs/chroma-similarity-search/similarity_search.py)
+- **Screenshots:**
+
+  ![Terminal run — ChromaDB similarity search](<./labs/chroma-similarity-search/screenshot-run.png>)
 - **Key learning:** A vector database reduces embedding, distance computation and ranking to three calls: `create_collection`, `add`, `query`.
 
 ### Lab 3 — Similarity Search on Employee Records Using Python and ChromaDB
@@ -40,7 +43,10 @@
   - Turned each employee record (role, skills, experience, location) into one searchable text, keeping the original fields as metadata.
   - Ran similarity queries, pure metadata filters (`$gte`, `$in`) and combined queries, e.g. "senior Python developer" with 8+ years in specific cities.
   - Repeated the same pattern independently on a books dataset.
-- **Code:** [`labs/lab3-employee-similarity-search/similarity_employeedata.py`](./labs/lab3-employee-similarity-search/similarity_employeedata.py), practice exercise: [`books_advanced_search.py`](./labs/lab3-employee-similarity-search/books_advanced_search.py) — [terminal run](./labs/lab3-employee-similarity-search/screenshot-run.png)
+- **Code:** [`labs/lab3-employee-similarity-search/similarity_employeedata.py`](./labs/lab3-employee-similarity-search/similarity_employeedata.py), practice exercise: [`books_advanced_search.py`](./labs/lab3-employee-similarity-search/books_advanced_search.py)
+- **Screenshots:**
+
+  ![Terminal run — employee similarity search](<./labs/lab3-employee-similarity-search/screenshot-run.png>)
 - **Key learning:** Embeddings answer "what is similar", metadata filters answer "what meets an exact condition". Combined in one query, they cover both.
 
 ## Final Project — Interactive Food Search and RAG Chatbot System
@@ -52,7 +58,10 @@
   - **System 2 — Advanced search:** filters by cuisine and calories, alone or combined.
   - **System 3 — RAG chatbot:** retrieves the top 3 dishes and lets Granite (`ibm/granite-4-h-small`) recommend and explain them, with a rule-based fallback.
   - **Extras:** a calorie-budget checker, a top-k comparison (`result_limiter.py`) and a side-by-side comparison of all three systems.
-- **Code:** [`labs/practice-food-recommendation-rag/`](./labs/practice-food-recommendation-rag/) — [terminal run (system comparison)](./labs/practice-food-recommendation-rag/screenshot-system-comparison.png)
+- **Code:** [`labs/practice-food-recommendation-rag/`](./labs/practice-food-recommendation-rag/)
+- **Screenshots:**
+
+  ![Terminal run — system comparison](<./labs/practice-food-recommendation-rag/screenshot-system-comparison.png>)
 - **Key learning:** In RAG, the LLM does not replace the search. It only sees the retrieved results, which keeps its answers grounded in real data. The number of results (top-k) is a real tuning parameter: more results also means less relevant ones.
 
 ## Key takeaways

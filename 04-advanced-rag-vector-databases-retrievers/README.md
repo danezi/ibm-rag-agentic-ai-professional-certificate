@@ -55,7 +55,16 @@
   - **Summary:** the full transcript goes directly to the LLM (`ibm/granite-8b-code-instruct`), no retrieval needed.
   - **Q&A:** the transcript is chunked, embedded and stored in FAISS; the 7 most relevant chunks serve as context for the answer.
   - **Testing:** beyond the lab's test video, tested on two other videos, including a German question about an English video, answered correctly.
-- **Code:** [`labs/final-project-youtube-rag-qa/ytbot.py`](./labs/final-project-youtube-rag-qa/ytbot.py) — screenshots: [lab example 1](./labs/final-project-youtube-rag-qa/screenshot-1-hallucinations-qa.png), [lab example 2](./labs/final-project-youtube-rag-qa/screenshot-2-rag-problems-qa.png), [custom video — AI chips](./labs/final-project-youtube-rag-qa/screenshot-3-custom-video-aws-chips.png), [custom video — German question](./labs/final-project-youtube-rag-qa/screenshot-4-custom-video-german-question.png)
+- **Code:** [`labs/final-project-youtube-rag-qa/ytbot.py`](./labs/final-project-youtube-rag-qa/ytbot.py)
+- **Screenshots:**
+
+  ![Lab example 1 — hallucinations Q&A](<./labs/final-project-youtube-rag-qa/screenshot-1-hallucinations-qa.png>)
+
+  ![Lab example 2 — RAG problems Q&A](<./labs/final-project-youtube-rag-qa/screenshot-2-rag-problems-qa.png>)
+
+  ![Custom video — AI chips](<./labs/final-project-youtube-rag-qa/screenshot-3-custom-video-aws-chips.png>)
+
+  ![Custom video — German question](<./labs/final-project-youtube-rag-qa/screenshot-4-custom-video-german-question.png>)
 - **Key learning:** Not every task needs retrieval: a summary can use the full transcript, while Q&A needs only the relevant chunks.
 
 ## Key takeaways

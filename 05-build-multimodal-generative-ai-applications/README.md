@@ -32,7 +32,12 @@
   3. **Write minutes:** a LangChain chain produces summary, key points, decisions and tasks.
   4. **Output:** shown in the app and downloadable as `.txt`.
 - **Code:** [`speech_analyzer.py`](./labs/lab1/final_project_Modul_1/speech_analyzer.py) (final app) · practice scripts: [`hello.py`](./labs/lab1/final_project_Modul_1/hello.py), [`simple_speech2text.py`](./labs/lab1/final_project_Modul_1/simple_speech2text.py), [`speech2text_app.py`](./labs/lab1/final_project_Modul_1/speech2text_app.py), [`simple_llm.py`](./labs/lab1/final_project_Modul_1/simple_llm.py)
-- **Result:** [`meeting_minutes_and_tasks.txt`](./labs/lab1/final_project_Modul_1/meeting_minutes_and_tasks.txt) · screenshots: [part 1](./labs/lab1/final_project_Modul_1/meeting_summary_AUDIO1.png), [part 2](./labs/lab1/final_project_Modul_1/meeting_summary_AUDIO1_2.png)
+- **Result:** [`meeting_minutes_and_tasks.txt`](./labs/lab1/final_project_Modul_1/meeting_minutes_and_tasks.txt)
+- **Screenshots:**
+
+  ![Meeting minutes — part 1](<./labs/lab1/final_project_Modul_1/meeting_summary_AUDIO1.png>)
+
+  ![Meeting minutes — part 2 (decisions & tasks)](<./labs/lab1/final_project_Modul_1/meeting_summary_AUDIO1_2.png>)
 - **Key learning:** Cleaning up the transcript before summarizing improves the result. With random sampling, the model sometimes invents details (e.g. an assignee nobody named).
 
 ## Key takeaways

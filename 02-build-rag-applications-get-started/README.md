@@ -31,7 +31,12 @@
     (`similarity_top_k` chunks) and say "I don't know" otherwise.
   - **Front ends:** a CLI (`main.py`, prints facts then opens a chat loop) and a Gradio
     web app (`app.py`, session-scoped by UUID so multiple profiles don't mix indexes).
-- **Code:** [`labs/icebreaker/`](./labs/icebreaker/) — [screenshots](./labs/icebreaker/screenshot-1.png)
+- **Code:** [`labs/icebreaker/`](./labs/icebreaker/)
+- **Screenshots:**
+
+  ![Icebreaker app — screenshot 1](<./labs/icebreaker/screenshot-1.png>)
+
+  ![Icebreaker app — screenshot 2](<./labs/icebreaker/screenshot-2.png>)
 - **Key learning:** LlamaIndex is a second, RAG-focused alternative to LangChain's
   document/retriever stack — same underlying idea (load → split → embed → index →
   retrieve → prompt), but `VectorStoreIndex` + `as_query_engine()` collapse most of that
