@@ -37,14 +37,14 @@ Legend: 🟢 Done · 🟡 In progress · ⚪ Not started
 | 2  | Build RAG Applications: Get Started | 🟢 Done | [`02-build-rag-applications-get-started/`](./02-build-rag-applications-get-started/) |
 | 3  | Vector Databases for RAG: An Introduction | 🟢 Done | [`03-vector-databases-for-rag/`](./03-vector-databases-for-rag/) |
 | 4  | Advanced RAG with Vector Databases and Retrievers | 🟢 Done | [`04-advanced-rag-vector-databases-retrievers/`](./04-advanced-rag-vector-databases-retrievers/) |
-| 5  | Build Multimodal Generative AI Applications | 🟡 In progress (~10%) | [`05-build-multimodal-generative-ai-applications/`](./05-build-multimodal-generative-ai-applications/) |
+| 5  | Build Multimodal Generative AI Applications | 🟡 In progress (~20%) | [`05-build-multimodal-generative-ai-applications/`](./05-build-multimodal-generative-ai-applications/) |
 | 6  | Fundamentals of Building AI Agents | ⚪ Not started | [`06-fundamentals-of-building-ai-agents/`](./06-fundamentals-of-building-ai-agents/) |
 | 7  | Agentic AI with LangChain and LangGraph | ⚪ Not started | [`07-agentic-ai-langchain-langgraph/`](./07-agentic-ai-langchain-langgraph/) |
 | 8  | Agentic AI with LangGraph, CrewAI, AutoGen and BeeAI | ⚪ Not started | [`08-agentic-ai-langgraph-crewai-autogen-beeai/`](./08-agentic-ai-langgraph-crewai-autogen-beeai/) |
 | 9  | Build AI Agents using MCP | ⚪ Not started | [`09-build-ai-agents-using-mcp/`](./09-build-ai-agents-using-mcp/) |
 | 10 | RAG and Agentic AI Capstone Project | ⚪ Not started | [`10-rag-agentic-ai-capstone-project/`](./10-rag-agentic-ai-capstone-project/) |
 
-_Current status: 1 of 10 courses in progress, 4 completed. Updated 2026-10-08._
+_Current status: 1 of 10 courses in progress, 4 completed. Updated 2026-10-09._
 
 ## 🏆 Capstone Project Highlight
 

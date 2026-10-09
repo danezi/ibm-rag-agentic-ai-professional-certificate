@@ -52,6 +52,9 @@ data/processed/
 models/
 *.gguf
 *.bin
+# Lab audio samples (re-downloadable from the Skills Network URLs in the lab code)
+*.wav
+*.mp3
 
 # --- Logs ---
 *.log
