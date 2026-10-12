@@ -1,15 +1,21 @@
 # Course 5 — Build Multimodal Generative AI Applications
 
-**Coursera course:** [https://www.coursera.org/learn/[course-slug]](https://www.coursera.org/learn/[course-slug])
+**Coursera course:** [build-multimodal-generative-ai-applications](https://www.coursera.org/learn/build-multimodal-generative-ai-applications)
 **Part of:** [IBM RAG and Agentic AI Professional Certificate](../README.md)
-**Status:** 🟡 In progress (~50%)
+**Status:** 🟡 In progress (~90%, Module 3 of 3)
 
 ## Learning goals
 
-- Work with models that accept and produce multiple modalities (text, image, audio)
-- Build prompts and pipelines that combine image understanding with text generation
-- Apply multimodal RAG (retrieving over images / mixed content)
-- Ship a multimodal application feature end to end
+- Understand the concepts and challenges of combining text, speech, images and video
+- Build multimodal apps with Granite, Llama, Whisper and image generation models
+- Create chatbots and image generation solutions with watsonx.ai, Hugging Face, Flask and Gradio
+- Apply multimodal RAG to retrieve and reason over images
+
+## Course structure
+
+1. Foundations of Multimodal AI (text & speech) — Lab 1, Meeting Assistant
+2. Integrating Visual and Video Modalities — Labs 2–3
+3. Advanced Multimodal Applications — Labs 4–5
 
 ## Labs
 

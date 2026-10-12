@@ -1,15 +1,20 @@
 # Course 3 — Vector Databases for RAG: An Introduction
 
-**Coursera course:** [https://www.coursera.org/learn/[course-slug]](https://www.coursera.org/learn/[course-slug])
+**Coursera course:** [vector-databases-for-rag-an-introduction](https://www.coursera.org/learn/vector-databases-for-rag-an-introduction)
 **Part of:** [IBM RAG and Agentic AI Professional Certificate](../README.md)
 **Status:** 🟢 Done
 
 ## Learning goals
 
-- Understand embeddings, vector similarity, and distance metrics
-- Compare vector database options and their indexing strategies (e.g. HNSW, IVF)
-- Store, query, and filter vectors with metadata
-- Integrate a vector database into a RAG retrieval step
+- Distinguish vector databases from traditional databases
+- Run core database operations in ChromaDB (add, update, delete, manage collections)
+- Apply similarity search by hand and with ChromaDB, and build recommendation systems
+- Understand the internal mechanisms of RAG
+
+## Course structure
+
+1. Introduction to Vector Databases and ChromaDB — Labs 1–2
+2. Vector Databases for Recommendation Systems and RAG — Lab 3, Final Project
 
 ## Labs
 

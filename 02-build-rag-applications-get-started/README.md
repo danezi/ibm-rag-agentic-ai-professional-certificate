@@ -1,15 +1,21 @@
 # Course 2 — Build RAG Applications: Get Started
 
-**Coursera course:** [https://www.coursera.org/learn/[course-slug]](https://www.coursera.org/learn/[course-slug])
+**Coursera course:** [build-rag-applications-get-started](https://www.coursera.org/learn/build-rag-applications-get-started)
 **Part of:** [IBM RAG and Agentic AI Professional Certificate](../README.md)
 **Status:** 🟢 Done
 
 ## Learning goals
 
-- Explain the RAG pattern and why it beats fine-tuning for knowledge-grounded apps
-- Load, split, and embed documents into a retrievable index
-- Wire retrieval into a prompt so the LLM answers from provided context
-- Build and run a minimal RAG pipeline end to end
+- Understand how Retrieval-Augmented Generation (RAG) works
+- Build interactive RAG interfaces with Gradio
+- Use LlamaIndex for RAG and compare it with LangChain
+- Build RAG applications in Python with LangChain and LlamaIndex
+
+## Course structure
+
+1. Introduction to RAG
+2. Build Apps with RAG
+3. Build RAG Apps with LlamaIndex — Final Project (Icebreaker Bot)
 
 ## Labs
 

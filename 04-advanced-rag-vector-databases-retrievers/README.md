@@ -1,15 +1,20 @@
 # Course 4 — Advanced RAG with Vector Databases and Retrievers
 
-**Coursera course:** [https://www.coursera.org/learn/[course-slug]](https://www.coursera.org/learn/[course-slug])
+**Coursera course:** [advanced-rag-with-vector-databases-and-retrievers](https://www.coursera.org/learn/advanced-rag-with-vector-databases-and-retrievers)
 **Part of:** [IBM RAG and Agentic AI Professional Certificate](../README.md)
 **Status:** 🟢 Done
 
 ## Learning goals
 
-- Improve retrieval quality with re-ranking, hybrid search, and query transformation
-- Use advanced retriever types (multi-query, parent-document, self-query, MMR)
-- Evaluate a RAG system (relevance, groundedness, answer quality)
-- Tune chunking and retrieval parameters against measured results
+- Build RAG applications with vector databases and advanced retrieval patterns
+- Use FAISS and ChromaDB and understand indexing algorithms such as HNSW
+- Implement advanced retrievers with LangChain and LlamaIndex
+- Build a complete RAG application with LangChain, FAISS and a Gradio front end
+
+## Course structure
+
+1. Advanced Retrievers for RAG — Labs 1–2
+2. Build a Comprehensive RAG Application — Lab 3, Final Project
 
 ## Labs
 

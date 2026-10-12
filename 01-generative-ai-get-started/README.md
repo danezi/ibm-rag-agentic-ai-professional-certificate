@@ -1,18 +1,21 @@
 # Course 1 — Develop Generative AI Applications: Get Started
 
-**Coursera course:** [https://www.coursera.org/learn/[course-slug]](https://www.coursera.org/learn/[course-slug])
+**Coursera course:** [develop-generative-ai-applications-get-started](https://www.coursera.org/learn/develop-generative-ai-applications-get-started)
 **Part of:** [IBM RAG and Agentic AI Professional Certificate](../README.md)
 **Status:** 🟢 Done
 
 ## Learning goals
 
-- Understand what generative AI is and where LLMs fit into an application stack
-- Work with foundation models through APIs and SDKs (prompts, parameters, responses)
-- Apply prompt engineering patterns — zero-/one-/few-shot, chain-of-thought, self-consistency — for reliable output
-- Structure prompts with LangChain `PromptTemplate` and reuse them across use cases
-- Compose LangChain components — output parsers, chains (LCEL), memory, retrievers, tools, agents — into multi-step apps
-- Build a retrieval-augmented generation (RAG) pipeline: load → split → embed → store → retrieve → answer
-- Build a first end-to-end generative AI application
+- Understand generative AI basics, prompt engineering and in-context learning
+- Use LangChain prompt templates, chains and agents to build context-aware apps
+- Build a Flask web app that returns structured JSON responses
+- Evaluate and compare language models to choose the right one for a use case
+
+## Course structure
+
+1. Foundations of Generative AI and Prompt Engineering — Lab 1
+2. Introduction to LangChain in GenAI Applications — Lab 2
+3. Build a Generative AI Application with LangChain — Final Project
 
 ## Labs
 
