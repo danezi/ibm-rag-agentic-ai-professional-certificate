@@ -2,7 +2,7 @@
 
 **Coursera course:** [build-multimodal-generative-ai-applications](https://www.coursera.org/learn/build-multimodal-generative-ai-applications)
 **Part of:** [IBM RAG and Agentic AI Professional Certificate](../README.md)
-**Status:** 🟡 In progress (~90%, Module 3 of 3)
+**Status:** 🟢 Done
 
 ## Learning goals
 
